@@ -1,0 +1,33 @@
+var source = fromCamera 
+       ? Camera.PictureSourceType.CAMERA 
+       : Camera.PictureSourceType.PHOTOLIBRARY;
+
+var opts = {
+    encodingType: Camera.EncodingType.JPEG,
+    sourceType: source,
+    destinationType: Camera.DestinationType.NATIVE_URI
+};
+
+navigator.camera.getPicture(
+        function(imageURI) {
+            window.resolveLocalFileSystemURL(imageURI,
+                    function(entry) {
+                        entry.file(function(file) {
+                            EXIF.getData(file, function() {
+                                var datetime = EXIF.getTag(this, "DateTimeOriginal");
+                                alert(datetime);
+                            });                                                
+
+                            // do something useful....
+
+                        }, standardErrorHandler);
+                    },
+                    function(e) {
+                        alert('Unexpected error obtaining image file.');
+                        standardErrorHandler(e);
+                    });
+        },
+        function() {
+            // nada - cancelled
+        },
+        opts);
